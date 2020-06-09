@@ -1,9 +1,9 @@
 #pragma once
 
-#define MAX_STOREDSHADOWS    48
-#define MAX_POLYBUNCHES      300
-#define MAX_STATICSHADOWS    64
-#define MAX_PERMAMENTSHADOWS 48
+#define MAX_STOREDSHADOWS    144
+#define MAX_POLYBUNCHES      900
+#define MAX_STATICSHADOWS    192
+#define MAX_PERMAMENTSHADOWS 144
 
 
 class CEntity;

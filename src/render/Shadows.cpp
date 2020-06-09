@@ -463,7 +463,7 @@ CShadows::StoreShadowForCar(CAutomobile *pCar)
 		if ( CCutsceneMgr::IsRunning() )
 			fDistToCamSqr /= SQR(TheCamera.LODDistMultiplier) * 4.0f;
 
-		float fDrawDistance = 18.0f;
+		float fDrawDistance = 90.0f;
 
 		if ( fDistToCamSqr < SQR(fDrawDistance) )
 		{
@@ -530,7 +530,7 @@ CShadows::StoreCarLightShadow(CAutomobile *pCar, int32 nID, RwTexture *pTexture,
 						|| TheCamera.Cams[TheCamera.ActiveCam].Mode == CCam::MODE_TOP_DOWN_PED
 						|| CCutsceneMgr::IsRunning();
 
-	float fDrawDistance = 27.0f;
+	float fDrawDistance = 108.0f;
 
 	if ( fDistToCamSqr < SQR(fDrawDistance) || bSpecialCam )
 	{
@@ -589,7 +589,7 @@ CShadows::StoreShadowForPedObject(CEntity *pPedObject, float fDisplacementX, flo
 
 	float fDistToCamSqr = (PedPos - TheCamera.GetPosition()).MagnitudeSqr2D();
 
-	float fDrawDistance = 26.0f;
+	float fDrawDistance = 104.0f;
 
 	if ( fDistToCamSqr < SQR(fDrawDistance*0.5f)/*?*/ )
 	{
@@ -633,8 +633,8 @@ CShadows::StoreShadowForPole(CEntity *pPole, float fOffsetX, float fOffsetY, flo
 
 	if ( CTimeCycle::GetShadowStrength() != 0 )
 	{
-		if ( pPole->GetUp().z < 0.5f )
-			return;
+		/*if ( pPole->GetUp().z < 0.5f )
+			return; */
 
 		CVector PolePos = pPole->GetPosition();
 
@@ -650,9 +650,9 @@ CShadows::StoreShadowForPole(CEntity *pPole, float fOffsetX, float fOffsetY, flo
 				-CTimeCycle::GetSunDirection().y * (fPoleHeight / 2),
 				CTimeCycle::GetShadowSideX()    * fPoleWidth,
 				CTimeCycle::GetShadowSideY()    * fPoleWidth,
-				2 * (int32)((pPole->GetUp().z - 0.5f) * CTimeCycle::GetShadowStrength() * 2.0f) / 3,
+				2 * (int32)((pPole->GetUp().z) * CTimeCycle::GetShadowStrength() * 2.0f) / 3,
 				0, 0, 0,
-				15.0f, 1.0f, 40.0f, false, 0.0f);
+				15.0f, 1.0f, 80.0f, false, 0.0f);
 	}
 }
 
