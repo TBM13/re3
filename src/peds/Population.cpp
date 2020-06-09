@@ -23,11 +23,11 @@
 #include "Script.h"
 #include "Shadows.h"
 
-#define MIN_CREATION_DIST		40.0f // not for start of the game (look at the GeneratePedsAtStartOfGame)
+#define MIN_CREATION_DIST		70.0f // not for start of the game (look at the GeneratePedsAtStartOfGame)
 #define CREATION_RANGE			10.0f // added over the MIN_CREATION_DIST.
 #define OFFSCREEN_CREATION_MULT	0.5f
-#define PED_REMOVE_DIST			(MIN_CREATION_DIST + CREATION_RANGE + 1.0f)
-#define PED_REMOVE_DIST_SPECIAL	(MIN_CREATION_DIST + CREATION_RANGE + 15.0f) // for peds with bCullExtraFarAway flag
+#define PED_REMOVE_DIST			(MIN_CREATION_DIST + CREATION_RANGE + 2.0f)
+#define PED_REMOVE_DIST_SPECIAL	(MIN_CREATION_DIST + CREATION_RANGE + 23.0f) // for peds with bCullExtraFarAway flag
 
 // Transition areas between zones
 const RegenerationPoint aSafeZones[] = {
