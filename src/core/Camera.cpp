@@ -543,7 +543,7 @@ CCamera::Process(void)
 
 	// LOD dist
 	if(!CCutsceneMgr::IsRunning() || CCutsceneMgr::UseLodMultiplier())
-		LODDistMultiplier = 70.0f/CDraw::GetFOV() * CDraw::GetAspectRatio()/(4.0f/3.0f);
+		LODDistMultiplier = 140.0f/CDraw::GetFOV() * CDraw::GetAspectRatio()/(4.0f/3.0f);
 	else
 		LODDistMultiplier = 1.0f;
 	GenerationDistMultiplier = LODDistMultiplier;
