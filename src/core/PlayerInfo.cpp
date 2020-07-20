@@ -174,7 +174,7 @@ CPlayerInfo::MakePlayerSafe(bool toggle)
 		CTheScripts::ResetCountdownToMakePlayerUnsafe();
 		m_pPed->m_pWanted->m_bIgnoredByEveryone = true;
 		CWorld::StopAllLawEnforcersInTheirTracks();
-		CPad::GetPad(0)->DisablePlayerControls |= PLAYERCONTROL_DISABLED_20;
+		CPad::GetPad(0)->SetDisablePlayerControls(PLAYERCONTROL_PLAYERINFO);
 		CPad::StopPadsShaking();
 		m_pPed->bBulletProof = true;
 		m_pPed->bFireProof = true;
@@ -194,7 +194,7 @@ CPlayerInfo::MakePlayerSafe(bool toggle)
 
 	} else if (!CGame::playingIntro && !CTheScripts::IsCountdownToMakePlayerUnsafeOn()) {
 		m_pPed->m_pWanted->m_bIgnoredByEveryone = false;
-		CPad::GetPad(0)->DisablePlayerControls &= ~PLAYERCONTROL_DISABLED_20;
+		CPad::GetPad(0)->SetEnablePlayerControls(PLAYERCONTROL_PLAYERINFO);
 		m_pPed->bBulletProof = false;
 		m_pPed->bFireProof = false;
 		m_pPed->bCollisionProof = false;
@@ -409,7 +409,7 @@ CPlayerInfo::Process(void)
 						if (veh->m_vehType != VEHICLE_TYPE_BIKE || veh->m_nDoorLock == CARLOCK_LOCKED_PLAYER_INSIDE) {
 							if (veh->GetStatus() != STATUS_WRECKED && veh->GetStatus() != STATUS_TRAIN_MOVING && veh->m_nDoorLock != CARLOCK_LOCKED_PLAYER_INSIDE) {
 								if (veh->m_vecMoveSpeed.Magnitude() < 0.17f && CTimer::GetTimeScale() >= 0.5f && !veh->bIsInWater) {
-									m_pPed->SetObjective(OBJECTIVE_LEAVE_VEHICLE, veh);
+									m_pPed->SetObjective(OBJECTIVE_LEAVE_CAR, veh);
 								}
 							}
 						} else {
@@ -553,7 +553,7 @@ CPlayerInfo::Process(void)
 		veh->m_nZoneLevel = LEVEL_IGNORE;
 		for (int i = 0; i < ARRAY_SIZE(veh->pPassengers); i++) {
 			if (veh->pPassengers[i])
-				veh->pPassengers[i]->m_nZoneLevel = LEVEL_NONE;
+				veh->pPassengers[i]->m_nZoneLevel = LEVEL_GENERIC;
 		}
 		CStats::DistanceTravelledInVehicle += veh->m_fDistanceTravelled;
 	} else {

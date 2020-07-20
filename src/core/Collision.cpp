@@ -38,7 +38,7 @@ void
 CCollision::Init(void)
 {
 	ms_colModelCache.Init(NUMCOLCACHELINKS);
-	ms_collisionInMemory = LEVEL_NONE;
+	ms_collisionInMemory = LEVEL_GENERIC;
 }
 
 void
@@ -59,7 +59,7 @@ CCollision::Update(void)
 		return;
 
 	// hardcode a level if there are no zones
-	if(level == LEVEL_NONE){
+	if(level == LEVEL_GENERIC){
 		if(CGame::currLevel == LEVEL_INDUSTRIAL &&
 		   playerCoors.x < 400.0f){
 			level = LEVEL_COMMERCIAL;
@@ -78,7 +78,7 @@ CCollision::Update(void)
 			}
 		}
 	}
-	if(level != LEVEL_NONE && level != CGame::currLevel)
+	if(level != LEVEL_GENERIC && level != CGame::currLevel)
 		CGame::currLevel = level;
 	if(ms_collisionInMemory != CGame::currLevel)
 		LoadCollisionWhenINeedIt(forceLevelChange);
@@ -95,10 +95,10 @@ GetCollisionInSectorList(CPtrList &list)
 	for(node = list.first; node; node = node->next){
 		e = (CEntity*)node->item;
 		level = CModelInfo::GetModelInfo(e->GetModelIndex())->GetColModel()->level;
-		if(level != LEVEL_NONE)
+		if(level != LEVEL_GENERIC)
 			return (eLevelName)level;
 	}
-	return LEVEL_NONE;
+	return LEVEL_GENERIC;
 }
 
 // Get a level this sector is in based on collision models
@@ -108,15 +108,15 @@ GetCollisionInSector(CSector &sect)
 	int level;
 
 	level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_BUILDINGS]);
-	if(level == LEVEL_NONE)
+	if(level == LEVEL_GENERIC)
 		level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_BUILDINGS_OVERLAP]);
-	if(level == LEVEL_NONE)
+	if(level == LEVEL_GENERIC)
 		level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_OBJECTS]);
-	if(level == LEVEL_NONE)
+	if(level == LEVEL_GENERIC)
 		level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_OBJECTS_OVERLAP]);
-	if(level == LEVEL_NONE)
+	if(level == LEVEL_GENERIC)
 		level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_DUMMIES]);
-	if(level == LEVEL_NONE)
+	if(level == LEVEL_GENERIC)
 		level = GetCollisionInSectorList(sect.m_lists[ENTITYLIST_DUMMIES_OVERLAP]);
 	return (eLevelName)level;
 }
@@ -133,7 +133,7 @@ CCollision::LoadCollisionWhenINeedIt(bool forceChange)
 	int xmin, xmax, ymin, ymax;
 	int x, y;
 
-	level = LEVEL_NONE;
+	level = LEVEL_GENERIC;
 
 	playerCoors = FindPlayerCoors();
 	sx = CWorld::GetSectorIndexX(playerCoors.x);
@@ -161,8 +161,8 @@ CCollision::LoadCollisionWhenINeedIt(bool forceChange)
 			for(x = xmin; x <= xmax; x++)
 				for(y = ymin; y <= ymax; y++){
 					l = GetCollisionInSector(*CWorld::GetSector(x, y));
-					if(l != LEVEL_NONE){
-						if(level == LEVEL_NONE)
+					if(l != LEVEL_GENERIC){
+						if(level == LEVEL_GENERIC)
 							level = l;
 						if(level != l)
 							multipleLevels = true;
@@ -173,19 +173,23 @@ CCollision::LoadCollisionWhenINeedIt(bool forceChange)
 		if(multipleLevels && veh && veh->IsBoat())
 			for(ei = veh->m_entryInfoList.first; ei; ei = ei->next){
 				level = GetCollisionInSector(*ei->sector);
-				if(level != LEVEL_NONE)
+				if(level != LEVEL_GENERIC)
 					break;
 			}
 	}
 
 	if(level == CGame::currLevel || forceChange){
 		CTimer::Stop();
+#ifndef NO_ISLAND_LOADING
 		DMAudio.SetEffectsFadeVol(0);
 		CPad::StopPadsShaking();
 		LoadCollisionScreen(CGame::currLevel);
 		DMAudio.Service();
+#endif
 
 		CPopulation::DealWithZoneChange(ms_collisionInMemory, CGame::currLevel, false);
+
+#ifndef NO_ISLAND_LOADING
 		CStreaming::RemoveIslandsNotUsed(LEVEL_INDUSTRIAL);
 		CStreaming::RemoveIslandsNotUsed(LEVEL_COMMERCIAL);
 		CStreaming::RemoveIslandsNotUsed(LEVEL_SUBURBAN);
@@ -196,19 +200,27 @@ CCollision::LoadCollisionWhenINeedIt(bool forceChange)
 		CStreaming::RemoveUnusedModelsInLoadedList();
 		CGame::TidyUpMemory(true, true);
 		CFileLoader::LoadCollisionFromDatFile(CGame::currLevel);
+#endif
+
 		ms_collisionInMemory = CGame::currLevel;
 		CReplay::EmptyReplayBuffer();
-		if(CGame::currLevel != LEVEL_NONE)
+#ifndef NO_ISLAND_LOADING
+		if(CGame::currLevel != LEVEL_GENERIC)
 			LoadSplash(GetLevelSplashScreen(CGame::currLevel));
 		CStreaming::RemoveUnusedBigBuildings(CGame::currLevel);
 		CStreaming::RemoveUnusedBuildings(CGame::currLevel);
 		CStreaming::RequestBigBuildings(CGame::currLevel);
+#endif
 		CStreaming::LoadAllRequestedModels(true);
+#ifndef NO_ISLAND_LOADING
 		CStreaming::HaveAllBigBuildingsLoaded(CGame::currLevel);
 
 		CGame::TidyUpMemory(true, true);
+#endif
 		CTimer::Update();
+#ifndef NO_ISLAND_LOADING
 		DMAudio.SetEffectsFadeVol(127);
+#endif
 	}
 }
 
@@ -217,10 +229,23 @@ CCollision::SortOutCollisionAfterLoad(void)
 {
 	if(ms_collisionInMemory == CGame::currLevel)
 		return;
-
+#ifndef NO_ISLAND_LOADING
 	CModelInfo::RemoveColModelsFromOtherLevels(CGame::currLevel);
-	if(CGame::currLevel != LEVEL_NONE){
+#endif
+	if (CGame::currLevel != LEVEL_GENERIC) {
+#ifdef NO_ISLAND_LOADING
+		static bool bAlreadyLoaded = false;
+		if (bAlreadyLoaded) {
+			ms_collisionInMemory = CGame::currLevel;
+			return;
+		}
+		bAlreadyLoaded = true;
+		CFileLoader::LoadCollisionFromDatFile(LEVEL_INDUSTRIAL);
+		CFileLoader::LoadCollisionFromDatFile(LEVEL_COMMERCIAL);
+		CFileLoader::LoadCollisionFromDatFile(LEVEL_SUBURBAN);
+#else
 		CFileLoader::LoadCollisionFromDatFile(CGame::currLevel);
+#endif
 		if(!CGame::playingIntro)
 			LoadSplash(GetLevelSplashScreen(CGame::currLevel));
 	}

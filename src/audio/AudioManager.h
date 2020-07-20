@@ -103,7 +103,7 @@ public:
 	int32 m_nSampleIndex;
 	uint8 m_nLoadingStatus;
 	uint8 m_nPlayStatus;
-	uint8 field_22; // todo find a name
+	bool m_bIsPlaying;
 	int32 m_nMissionAudioCounter;
 	bool m_bIsPlayed;
 };
@@ -421,7 +421,7 @@ public:
 	bool ProcessVehicleReverseWarning(cVehicleParams *params);
 	bool ProcessVehicleRoadNoise(cVehicleParams *params);
 	bool ProcessVehicleSirenOrAlarm(cVehicleParams *params);
-	void ProcessVehicleSkidding(cVehicleParams *params);
+	bool ProcessVehicleSkidding(cVehicleParams *params);
 	void ProcessWaterCannon(int32);
 	void ProcessWeather(int32 id);
 	bool ProcessWetRoadNoise(cVehicleParams *params);
@@ -443,14 +443,14 @@ public:
 	void ServicePoliceRadioChannel(int32 wantedLevel);
 	void ServiceSoundEffects();
 	int8 SetCurrent3DProvider(uint8 which);
-	void SetDynamicAcousticModelingStatus(bool status);
+	void SetDynamicAcousticModelingStatus(uint8 status);
 	void SetEffectsFadeVol(uint8 volume) const;
 	void SetEffectsMasterVolume(uint8 volume) const;
 	void SetEntityStatus(int32 id, uint8 status);
 	uint32 SetLoopingCollisionRequestedSfxFreqAndGetVol(const cAudioCollision &audioCollision);
 	void SetMissionAudioLocation(float x, float y, float z);
 	void SetMissionScriptPoliceAudio(int32 sfx) const;
-	void SetMonoMode(uint8); // todo (mobile)
+	void SetMonoMode(uint8 mono);
 	void SetMusicFadeVol(uint8 volume) const;
 	void SetMusicMasterVolume(uint8 volume) const;
 	void SetSpeakerConfig(int32 conf) const;

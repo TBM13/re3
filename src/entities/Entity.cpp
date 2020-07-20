@@ -332,14 +332,14 @@ CEntity::SetupBigBuilding(void)
 	bStreamingDontDelete = true;
 	bUsesCollision = false;
 	m_level = CTheZones::GetLevelFromPosition(&GetPosition());
-	if(m_level == LEVEL_NONE){
+	if(m_level == LEVEL_GENERIC){
 		if(mi->GetTxdSlot() != CTxdStore::FindTxdSlot("generic")){
 			mi->SetTexDictionary("generic");
 			printf("%d:%s txd has been set to generic\n", m_modelIndex, mi->GetName());
 		}
 	}
 	if(mi->m_lodDistances[0] > 2000.0f)
-		m_level = LEVEL_NONE;
+		m_level = LEVEL_GENERIC;
 }
 
 CRect
@@ -803,12 +803,12 @@ CEntity::ProcessLightsForEntity(void)
 		}
 
 		// Light shadow
-		if(effect->light.shadowRange != 0.0f){
+		if(effect->light.shadowSize != 0.0f){
 			if(lightOn){
 				CShadows::StoreStaticShadow((uintptr)this + i, SHADOWTYPE_ADDITIVE,
 					effect->light.shadow, &pos,
-					effect->light.shadowRange, 0.0f,
-					0.0f, -effect->light.shadowRange,
+					effect->light.shadowSize, 0.0f,
+					0.0f, -effect->light.shadowSize,
 					128,
 					effect->col.r*CTimeCycle::GetSpriteBrightness()*effect->light.shadowIntensity/255.0f,
 					effect->col.g*CTimeCycle::GetSpriteBrightness()*effect->light.shadowIntensity/255.0f,
@@ -817,8 +817,8 @@ CEntity::ProcessLightsForEntity(void)
 			}else if(lightFlickering){
 				CShadows::StoreStaticShadow((uintptr)this + i, SHADOWTYPE_ADDITIVE,
 					effect->light.shadow, &pos,
-					effect->light.shadowRange, 0.0f,
-					0.0f, -effect->light.shadowRange,
+					effect->light.shadowSize, 0.0f,
+					0.0f, -effect->light.shadowSize,
 					0, 0.0f, 0.0f, 0.0f,
 					15.0f, 1.0f, 40.0f, false, 0.0f);
 			}

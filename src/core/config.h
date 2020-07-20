@@ -190,7 +190,6 @@ enum Config {
 #endif
 
 #define FIX_BUGS		// fixes bugs that we've came across during reversing, TODO: use this more
-#define TOGGLEABLE_BETA_FEATURES // toggleable from debug menu. not too many things
 #define MORE_LANGUAGES		// Add more translations to the game
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible
 
@@ -199,7 +198,10 @@ enum Config {
 #define DEFAULT_NATIVE_RESOLUTION	// Set default video mode to your native resolution (fixes Windows 10 launch)
 #define USE_TXD_CDIMAGE		// generate and load textures from txd.img
 #define IMPROVED_VIDEOMODE	// save and load videomode parameters instead of a magic number
+#define DISABLE_LOADING_SCREEN // disable the loading screen which vastly improves the loading time
+//#define NO_ISLAND_LOADING  // disable loadscreen between islands via loading all island data at once, consumes more memory and CPU
 //#define USE_TEXTURE_POOL
+#define CUTSCENE_BORDERS_SWITCH
 
 // Particle
 //#define PC_PARTICLE
@@ -216,23 +218,38 @@ enum Config {
 #define REGISTER_START_BUTTON
 
 // Hud, frontend and radar
-#define TRIANGULAR_BLIPS	// height indicating triangular radar blips, as in VC
-#define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
-// #define PS2_LIKE_MENU	// An effort to recreate PS2 menu, cycling through tabs, different bg etc.
-#define MENU_MAP			// VC-like menu map. Make sure you have new menu.txd
-#define SCROLLABLE_STATS_PAGE	// only draggable by mouse atm
-#define TRIANGLE_BACK_BUTTON
-// #define CIRCLE_BACK_BUTTON
 #define HUD_ENHANCEMENTS	// Adjusts some aspects to make the HUD look/behave a little bit better.
 #define BETA_SLIDING_TEXT
-#define CUSTOM_FRONTEND_OPTIONS
+#define TRIANGULAR_BLIPS	// height indicating triangular radar blips, as in VC
+#define PC_MENU
+
+#ifndef PC_MENU
+#	define PS2_MENU
+//#	define PS2_MENU_USEALLPAGEICONS
+#else
+#	define PS2_SAVE_DIALOG		// PS2 style save dialog with transparent black box
+//#	define PS2_LIKE_MENU	// An effort to recreate PS2 menu, cycling through tabs, different bg etc.
+#	define MENU_MAP			// VC-like menu map. Make sure you have new menu.txd
+#	define SCROLLABLE_STATS_PAGE	// only draggable by mouse atm
+#	define TRIANGLE_BACK_BUTTON
+//#	define CIRCLE_BACK_BUTTON
+#	define CUSTOM_FRONTEND_OPTIONS
+#endif
 
 // Script
 #define USE_DEBUG_SCRIPT_LOADER	// Loads main.scm by default. Hold R for main_freeroam.scm and D for main_d.scm
 #define USE_MEASUREMENTS_IN_METERS // makes game use meters instead of feet in script
 #define USE_PRECISE_MEASUREMENT_CONVERTION // makes game convert feet to meeters more precisely
-#define MISSION_REPLAY // mobile feature
+#ifdef PC_MENU
+#	define MISSION_REPLAY // mobile feature
+#endif
 //#define SIMPLIER_MISSIONS // apply simplifications from mobile
+#define USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
+#define SCRIPT_LOG_FILE_LEVEL 1 // 0 == no log, 1 == overwrite every frame, 2 == full log
+
+#ifndef USE_ADVANCED_SCRIPT_DEBUG_OUTPUT
+#define USE_BASIC_SCRIPT_DEBUG_OUTPUT
+#endif
 
 // Replay
 //#define DONT_FIX_REPLAY_BUGS // keeps various bugs in CReplay, some of which are fairly cool!
@@ -249,10 +266,15 @@ enum Config {
 // Peds
 #define PED_SKIN		// support for skinned geometry on peds
 #define ANIMATE_PED_COL_MODEL
-#define VC_PED_PORTS			// various ports from VC's CPed, mostly subtle
+// #define VC_PED_PORTS			// various ports from VC's CPed, mostly subtle
 // #define NEW_WALK_AROUND_ALGORITHM	// to make walking around vehicles/objects less awkward
 #define CANCELLABLE_CAR_ENTER
+//#define PEDS_REPORT_CRIMES_ON_PHONE
 
 // Camera
+//#define PS2_CAM_TRANSITION	// old way of transitioning between cam modes
 #define IMPROVED_CAMERA		// Better Debug cam, and maybe more in the future
 #define FREE_CAM		// Rotating cam
+
+// Audio
+#define AUDIO_CACHE // cache sound lengths to speed up the cold boot

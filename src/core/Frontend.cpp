@@ -5,6 +5,7 @@
 
 #define WITHWINDOWS
 #include "common.h"
+#ifndef PS2_MENU
 #include "crossplatform.h"
 #include "platform.h"
 #include "Frontend.h"
@@ -110,6 +111,10 @@ float CMenuManager::m_PrefsLOD = CRenderer::ms_lodDistScale;
 int8 CMenuManager::m_bFrontEnd_ReloadObrTxtGxt;
 int32 CMenuManager::m_PrefsMusicVolume = 102;
 int32 CMenuManager::m_PrefsSfxVolume = 102;
+
+#ifdef CUTSCENE_BORDERS_SWITCH
+bool CMenuManager::m_PrefsCutsceneBorders = true;
+#endif
 
 char CMenuManager::m_PrefsSkinFile[256] = DEFAULT_SKIN_NAME;
 
@@ -1216,8 +1221,10 @@ CMenuManager::Draw()
 							rightText = option.drawFunc(&isOptionDisabled);
 						}
 					}
-				} else
+				} else {
+					debug("A- screen:%d option:%d - totalCo: %d, coId: %d, coScreen:%d, coOption:%d\n", m_nCurrScreen, i, numCustomFrontendOptions, aScreens[m_nCurrScreen].m_aEntries[i].m_TargetMenu, option.screen, option.screenOptionOrder);
 					assert(0 && "Custom frontend options is borked");
+				}
 
 				break;
 #endif
@@ -3065,7 +3072,6 @@ CMenuManager::InitialiseChangedLanguageSettings()
 		}
 
 #ifdef CUSTOM_FRONTEND_OPTIONS
-		RemoveCustomFrontendOptions();
 		CustomFrontendOptionsPopulate();
 #endif
 	}
@@ -3216,6 +3222,9 @@ CMenuManager::LoadSettings()
 #ifdef FREE_CAM
 			CFileMgr::Read(fileHandle, (char*)&TheCamera.bFreeCam, 1);
 #endif
+#ifdef CUTSCENE_BORDERS_SWITCH
+			CFileMgr::Read(fileHandle, (char *)&CMenuManager::m_PrefsCutsceneBorders, 1);
+#endif
 		}
 	}
 
@@ -3308,6 +3317,9 @@ CMenuManager::SaveSettings()
 		CFileMgr::Write(fileHandle, (char*)&m_PrefsLanguage, 1);
 #ifdef FREE_CAM
 		CFileMgr::Write(fileHandle, (char*)&TheCamera.bFreeCam, 1);
+#endif
+#ifdef CUTSCENE_BORDERS_SWITCH
+		CFileMgr::Write(fileHandle, (char *)&CMenuManager::m_PrefsCutsceneBorders, 1);
 #endif
 	}
 
@@ -4774,8 +4786,10 @@ CMenuManager::ProcessButtonPresses(void)
 						} else if (option.type == FEOPTION_GOBACK) {
 							goBack = true;
 						}
-					} else
+					} else {
+						debug("B- screen:%d option:%d - totalCo: %d, coId: %d, coScreen:%d, coOption:%d\n", m_nCurrScreen, m_nCurrOption, numCustomFrontendOptions, aScreens[m_nCurrScreen].m_aEntries[m_nCurrOption].m_TargetMenu, option.screen, option.screenOptionOrder);
 						assert(0 && "Custom frontend options are borked");
+					}
 
 					break;
 #endif
@@ -4997,8 +5011,10 @@ CMenuManager::ProcessButtonPresses(void)
 					}
 					DMAudio.PlayFrontEndSound(SOUND_FRONTEND_MENU_SETTING_CHANGE, 0);
 				}
-				else
+				else {
+					debug("C- screen:%d option:%d - totalCo: %d, coId: %d, coScreen:%d, coOption:%d\n", m_nCurrScreen, m_nCurrOption, numCustomFrontendOptions, aScreens[m_nCurrScreen].m_aEntries[m_nCurrOption].m_TargetMenu, option.screen, option.screenOptionOrder);
 					assert(0 && "Custom frontend options are borked");
+				}
 
 				break;
 #endif
@@ -5971,3 +5987,5 @@ uint8 CMenuManager::GetNumberOfMenuOptions()
 #undef GetBackJustUp
 #undef GetBackJustDown
 #undef ChangeScreen
+    
+#endif

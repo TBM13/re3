@@ -104,7 +104,9 @@ CFileLoader::LoadLevel(const char *filename)
 			LoadingScreenLoadingFile(line + 8);
 			LoadMapZones(line + 8);
 		}else if(strncmp(line, "SPLASH", 6) == 0){
+#ifndef DISABLE_LOADING_SCREEN
 			LoadSplash(GetRandomSplashScreen());
+#endif
 		}else if(strncmp(line, "CDIMAGE", 7) == 0){
 			CdStreamAddImage(line + 8);
 		}
@@ -945,7 +947,7 @@ CFileLoader::Load2dEffect(const char *line)
 			&effect->light.dist,
 			&effect->light.range,
 			&effect->light.size,
-			&effect->light.shadowRange,
+			&effect->light.shadowSize,
 			&shadowIntens, &lightType, &roadReflection, &flare, &flags);
 		effect->light.corona = RwTextureRead(corona, nil);
 		effect->light.shadow = RwTextureRead(shadow, nil);
@@ -977,7 +979,7 @@ CFileLoader::Load2dEffect(const char *line)
 			&effect->attractor.dir.y,
 			&effect->attractor.dir.z,
 			&probability);
-		effect->attractor.flags = flags;
+		effect->attractor.type = flags;
 		effect->attractor.probability = probability;
 		break;
 	}

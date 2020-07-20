@@ -75,7 +75,6 @@ mysrand(unsigned int seed)
 
 void ReloadFrontendOptions(void)
 {
-	RemoveCustomFrontendOptions();
 	CustomFrontendOptionsPopulate();
 }
 
@@ -83,7 +82,7 @@ void ReloadFrontendOptions(void)
 void LangPolSelect(int8 action)
 {
 	if (action == FEOPTION_ACTION_SELECT) {
-		FrontEndMenuManager.m_PrefsLanguage = LANGUAGE_POLISH;
+		FrontEndMenuManager.m_PrefsLanguage = CMenuManager::LANGUAGE_POLISH;
 		FrontEndMenuManager.m_bFrontEnd_ReloadObrTxtGxt = true;
 		FrontEndMenuManager.InitialiseChangedLanguageSettings();
 		FrontEndMenuManager.SaveSettings();
@@ -93,7 +92,7 @@ void LangPolSelect(int8 action)
 void LangRusSelect(int8 action)
 {
 	if (action == FEOPTION_ACTION_SELECT) {
-		FrontEndMenuManager.m_PrefsLanguage = LANGUAGE_RUSSIAN;
+		FrontEndMenuManager.m_PrefsLanguage = CMenuManager::LANGUAGE_RUSSIAN;
 		FrontEndMenuManager.m_bFrontEnd_ReloadObrTxtGxt = true;
 		FrontEndMenuManager.InitialiseChangedLanguageSettings();
 		FrontEndMenuManager.SaveSettings();
@@ -103,7 +102,7 @@ void LangRusSelect(int8 action)
 void LangJapSelect(int8 action)
 {
 	if (action == FEOPTION_ACTION_SELECT) {
-		FrontEndMenuManager.m_PrefsLanguage = LANGUAGE_JAPANESE;
+		FrontEndMenuManager.m_PrefsLanguage = CMenuManager::LANGUAGE_JAPANESE;
 		FrontEndMenuManager.m_bFrontEnd_ReloadObrTxtGxt = true;
 		FrontEndMenuManager.InitialiseChangedLanguageSettings();
 		FrontEndMenuManager.SaveSettings();
@@ -133,10 +132,20 @@ void ToggleFreeCam(int8 action)
 }
 #endif
 
+#ifdef CUTSCENE_BORDERS_SWITCH
+void BorderModeChange(int8 displayedValue)
+{
+	CMenuManager::m_PrefsCutsceneBorders = !!displayedValue;
+	FrontEndMenuManager.SaveSettings();
+}
+#endif
+
 // Reloaded on language change, so you can use hardcoded wchar* and TheText.Get with peace of mind
 void
 CustomFrontendOptionsPopulate(void)
 {
+	RemoveCustomFrontendOptions(); // if exist
+
 #ifdef MORE_LANGUAGES
 	FrontendOptionSetPosition(MENUPAGE_LANGUAGE_SETTINGS);
 	FrontendOptionAddDynamic(TheText.Get("FEL_POL"), nil, LangPolSelect, nil);
@@ -159,6 +168,12 @@ CustomFrontendOptionsPopulate(void)
 	static const wchar *text = (wchar*)L"TOGGLE FREE CAM";
 	FrontendOptionSetPosition(MENUPAGE_CONTROLLER_PC, 1);
 	FrontendOptionAddDynamic(text, nil, ToggleFreeCam, nil);
+#endif
+
+#ifdef CUTSCENE_BORDERS_SWITCH
+	static const wchar *off_on[] = { TheText.Get("FEM_OFF"), TheText.Get("FEM_ON") };
+	FrontendOptionSetPosition(MENUPAGE_GRAPHICS_SETTINGS, 9);
+	FrontendOptionAddSelect((const wchar *)L"CUTSCENE BORDERS", off_on, 2, (int8 *)&CMenuManager::m_PrefsCutsceneBorders, false, BorderModeChange, nil);
 #endif
 }
 #endif
@@ -484,11 +499,7 @@ DebugMenuPopulate(void)
 #ifdef CUSTOM_FRONTEND_OPTIONS
 		DebugMenuAddCmd("Debug", "Reload custom frontend options", ReloadFrontendOptions);
 #endif
-#ifdef TOGGLEABLE_BETA_FEATURES
 		DebugMenuAddVarBool8("Debug", "Toggle popping heads on headshot", &CPed::bPopHeadsOnHeadshot, nil);
-		DebugMenuAddVarBool8("Debug", "Toggle peds running to phones to report crimes", &CPed::bMakePedsRunToPhonesToReportCrimes, nil);
-#endif
-
 		DebugMenuAddCmd("Debug", "Start Credits", CCredits::Start);
 		DebugMenuAddCmd("Debug", "Stop Credits", CCredits::Stop);
 
