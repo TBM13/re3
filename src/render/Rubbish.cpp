@@ -12,8 +12,8 @@
 #include "RenderBuffer.h"
 #include "Rubbish.h"
 
-#define RUBBISH_MAX_DIST (18.0f)
-#define RUBBISH_FADE_DIST (16.5f)
+#define RUBBISH_MAX_DIST (54.0f)
+#define RUBBISH_FADE_DIST (49.5f)
 
 RwTexture *gpRubbishTexture[4];
 RwImVertexIndex RubbishIndexList[6];
