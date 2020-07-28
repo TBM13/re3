@@ -149,6 +149,10 @@ CGame::InitialiseOnceBeforeRW(void)
 	return true;
 }
 
+#if !defined(LIBRW) && defined(PS2_MATFX)
+void ReplaceMatFxCallback();
+#endif
+
 bool
 CGame::InitialiseRenderWare(void)
 {
@@ -199,6 +203,8 @@ CGame::InitialiseRenderWare(void)
 #else
 	rw::MatFX::modulateEnvMap = false;
 #endif
+#elif defined(PS2_MATFX)
+	ReplaceMatFxCallback();
 #endif
 	
 	CFont::Initialise();
@@ -359,7 +365,7 @@ bool CGame::Initialise(const char* datFile)
 	CStreaming::LoadInitialPeds();
 	CStreaming::RequestBigBuildings(LEVEL_GENERIC);
 	CStreaming::LoadAllRequestedModels(false);
-	printf("Streaming uses %dK of its memory", CStreaming::ms_memoryUsed / 1024);
+	printf("Streaming uses %zuK of its memory", CStreaming::ms_memoryUsed / 1024); // original modifier was %d
 	LoadingScreen("Loading the Game", "Load animations", GetRandomSplashScreen());
 	CAnimManager::LoadAnimFiles();
 	CPed::Initialise();

@@ -307,7 +307,7 @@ ConvertTexRaster(rw::Raster *ras)
 
 	Image *img = ras->toImage();
 	ras->destroy();
-	img->unindex();
+	img->unpalettize();
 	ras = Raster::createFromImage(img);
 	img->destroy();
 	return ras;
@@ -379,7 +379,7 @@ RwStream *RwStreamOpen(RwStreamType type, RwStreamAccessType accessType, const v
 		FILE* first = fopen((char*)pData, "r");
 		char *r;
 		if (!first) {
-			r = (char*)alloca(strlen((char*)pData) + 2);
+			r = (char*)alloca(strlen((char*)pData) + 4);
 			// Use default path(and pass error handling to librw) if we can't find any match
 			if (!casepath((char*)pData, r))
 				r = (char*)pData;
@@ -855,12 +855,41 @@ RpSkin *RpSkinGeometryGetSkin( RpGeometry *geometry ) { return Skin::get(geometr
 RpAtomic *RpSkinAtomicSetHAnimHierarchy( RpAtomic *atomic, RpHAnimHierarchy *hierarchy ) { Skin::setHierarchy(atomic, hierarchy); return atomic; }
 RpHAnimHierarchy *RpSkinAtomicGetHAnimHierarchy( const RpAtomic *atomic ) { return Skin::getHierarchy(atomic); }
 
-
-
-
-
-RwImage *RtBMPImageWrite(RwImage * image, const RwChar * imageName) { rw::writeBMP(image, imageName); return image; }
-RwImage *RtBMPImageRead(const RwChar * imageName) { return rw::readBMP(imageName); }
+RwImage *
+RtBMPImageWrite(RwImage *image, const RwChar *imageName)
+{
+#ifndef _WIN32
+	char *r = nil;
+	FILE *valid = fopen((char *)imageName, "r");
+	if(!valid) {
+		char *r = (char *)alloca(strlen((char *)imageName) + 4);
+		// Use default path(and pass error handling to librw) if we can't find any match
+		if(!casepath((char *)imageName, r)) r = (char *)imageName;
+	} else
+		fclose(valid);
+	rw::writeBMP(image, r);
+#else
+	rw::writeBMP(image, imageName);
+#endif
+	return image;
+}
+RwImage *
+RtBMPImageRead(const RwChar *imageName)
+{
+#ifndef _WIN32
+	char *r = nil;
+	FILE *valid = fopen((char *)imageName, "r");
+	if(!valid) {
+		r = (char *)alloca(strlen((char *)imageName) + 4);
+		// Use default path(and pass error handling to librw) if we can't find any match
+		if(!casepath((char *)imageName, r)) r = (char *)imageName;
+	} else
+		fclose(valid);
+	return rw::readBMP(r);
+#else
+	return rw::readBMP(imageName);
+#endif
+}
 
 #include "rtquat.h"
 

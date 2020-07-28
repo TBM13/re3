@@ -37,7 +37,7 @@ static myFILE myfiles[NUMFILES];
 // Case-insensitivity on linux (from https://github.com/OneSadCookie/fcaseopen)
 void mychdir(char const *path)
 {
-    char *r = (char*)alloca(strlen(path) + 2);
+    char *r = (char*)alloca(strlen(path) + 4);
     if (casepath(path, r))
     {
         chdir(r);
@@ -88,7 +88,7 @@ found:
 // Be case-insensitive on linux (from https://github.com/OneSadCookie/fcaseopen/)
 #if !defined(_WIN32)
 	if (!myfiles[fd].file) {
-		char *r = (char*)alloca(strlen(newPath) + 2);
+		char *r = (char*)alloca(strlen(newPath) + 4);
 		if (casepath(newPath, r))
 		{
 		    myfiles[fd].file = fopen(r, realmode);
@@ -163,7 +163,7 @@ myfgets(char *buf, int len, int fd)
 	return buf;
 }
 
-static int
+static size_t
 myfread(void *buf, size_t elt, size_t n, int fd)
 {
 	if(myfiles[fd].isText){
@@ -184,7 +184,7 @@ myfread(void *buf, size_t elt, size_t n, int fd)
 	return fread(buf, elt, n, myfiles[fd].file);
 }
 
-static int
+static size_t
 myfwrite(void *buf, size_t elt, size_t n, int fd)
 {
 	if(myfiles[fd].isText){
@@ -265,11 +265,11 @@ CFileMgr::SetDirMyDocuments(void)
 	mychdir(_psGetUserFilesFolder());
 }
 
-int
+size_t
 CFileMgr::LoadFile(const char *file, uint8 *buf, int unused, const char *mode)
 {
 	int fd;
-	int n, len;
+	size_t n, len;
 
 	fd = myfopen(file, mode);
 	if(fd == 0)
@@ -298,13 +298,13 @@ CFileMgr::OpenFileForWriting(const char *file)
 	return OpenFile(file, "wb");
 }
 
-int
+size_t
 CFileMgr::Read(int fd, const char *buf, int len)
 {
 	return myfread((void*)buf, 1, len, fd);
 }
 
-int
+size_t
 CFileMgr::Write(int fd, const char *buf, int len)
 {
 	return myfwrite((void*)buf, 1, len, fd);
